@@ -1,7 +1,9 @@
-FROM jupyter/datascience-notebook:8f56e3c47fec
-MAINTAINER Serenata de Amor "datasciencebr@gmail.com"
+FROM conda/miniconda3
 
 USER root
+ARG AMAZON_BUCKET=serenata-de-amor-data
+ARG AMAZON_ENDPOINT=https://nyc3.digitaloceanspaces.com
+ARG AMAZON_REGION=nyc3
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -11,16 +13,10 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN sudo -u jovyan mkdir /home/jovyan/.jupyter
+WORKDIR /mnt/code
 
-USER jovyan
-
-COPY ./research/requirements.txt ./requirements.txt
-COPY ./config.ini ./config.ini
+COPY ./requirements.txt ./requirements.txt
 COPY ./setup ./setup
 
-RUN conda update setuptools
 RUN pip install -r requirements.txt
 RUN ./setup
-
-COPY ./research/jupyter_notebook_config.py /home/jovyan/.jupyter/jupyter_notebook_config.py
